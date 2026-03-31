@@ -917,6 +917,17 @@ footer .copyright {
     /* Fix header layout on mobile */
     nav > div:first-child { width: 100%; justify-content: center; }
     nav > div:last-child { width: 100%; justify-content: center; flex-wrap: wrap; }
+    
+    /* Fix custom links inputs on mobile */
+    #custom-links .card > div:first-child {
+        flex-direction: column;
+    }
+    #custom-links .card > div:first-child input,
+    #custom-links .card > div:first-child button {
+        width: 100%;
+        flex: none !important;
+    }
+    
     body { overflow-x: hidden; }
 }
 

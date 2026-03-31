@@ -41,7 +41,9 @@ function setupConverters() {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.download = `${file.name.split('.')[0]}.jpg`;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
                 setStatus('pngStatus', '✅ Converted!');
             };
             img.src = event.target.result;
@@ -97,6 +99,7 @@ function setupConverters() {
     });
 
     // --- 2. Word to PDF (Premium Quality) ---
+    // --- 2. Word to PDF (Premium Quality via Text Extraction) ---
     saferAddListener('wordInput', 'change', async (e) => {
         try {
             const file = e.target.files[0];
@@ -108,41 +111,46 @@ function setupConverters() {
             const reader = new FileReader();
             reader.onload = async function(ev) {
                 try {
-                    const result = await mammoth.convertToHtml({arrayBuffer: ev.target.result});
+                    const result = await mammoth.extractRawText({arrayBuffer: ev.target.result});
+                    const text = result.value || "No text found in document";
                     
-                    const container = document.createElement('div');
-                    container.style.width = '800px';
-                    container.style.padding = '40px';
-                    container.style.backgroundColor = 'white';
-                    container.style.color = 'black';
-                    container.style.position = 'absolute';
-                    container.style.left = '-9999px';
-                    container.style.top = '0';
-                    container.style.fontFamily = 'Arial, sans-serif';
-                    container.innerHTML = result.value || "<h3>Empty Document</h3>";
-                    document.body.appendChild(container);
-
                     setStatus('wordStatus', '⏳ Generating PDF...');
 
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF('p', 'pt', 'a4');
-                    const pageWidth = doc.internal.pageSize.getWidth();
+                    
+                    const margin = 40;
+                    const pageWidth = doc.internal.pageSize.width;
+                    const maxLineWidth = pageWidth - margin * 2;
+                    
+                    doc.setFontSize(12);
+                    doc.setFont("helvetica", "normal");
+                    
+                    // Split text into lines that fit the page width
+                    const lines = doc.splitTextToSize(text, maxLineWidth);
+                    let y = margin;
+                    const pageHeight = doc.internal.pageSize.height;
+                    const lineHeight = 16;
+                    
+                    for(let i=0; i<lines.length; i++) {
+                        if (y > pageHeight - margin) {
+                            doc.addPage();
+                            y = margin;
+                        }
+                        doc.text(lines[i], margin, y);
+                        y += lineHeight;
+                    }
 
-                    doc.html(container, {
-                        callback: function(pdf) {
-                            pdf.save(file.name.replace(".docx", ".pdf"));
-                            setStatus('wordStatus', '✅ Downloaded!');
-                            document.body.removeChild(container);
-                        },
-                        x: 10, y: 10, width: pageWidth - 20, windowWidth: 800, margin: [20, 20, 20, 20]
-                    });
+                    doc.save(file.name.replace(".docx", ".pdf"));
+                    setStatus('wordStatus', '✅ Downloaded!');
                 } catch (procErr) {
-                    alert(`Word Error: ${procErr.message}`);
+                    alert(`Word to PDF Error: ${procErr.message}`);
                     setStatus('wordStatus', '❌ Error');
                 }
             };
             reader.readAsArrayBuffer(file);
         } catch (err) {
+            alert(`Error: ${err.message}`);
             setStatus('wordStatus', '❌ Failed');
         }
     });
@@ -353,7 +361,9 @@ function generateQR() {
             const a = document.createElement('a');
             a.href = url;
             a.download = "qr-code.png";
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             setStatus('qrStatus', '✅ Downloaded!');
         });
     };
