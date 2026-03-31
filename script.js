@@ -370,27 +370,26 @@ function generateQR() {
     img.src = qrUrl;
 }
 
-// --- Premium Feature: Currency Converter ---
+// --- Premium Feature: Global Currency Converter ---
 async function convertCurrency() {
     const amount = document.getElementById('currAmount').value;
     const from = document.getElementById('currFrom').value;
+    const to = document.getElementById('currTo').value;
     const resultEl = document.getElementById('currResult');
     
     resultEl.innerText = "⏳ Fetching...";
     
     try {
-        // Fetch USD base to ensure exact match with Live Hub rates
         const res = await fetch('https://open.er-api.com/v6/latest/USD');
         const data = await res.json();
         
-        const pkrBase = data.rates['PKR'];
         const fromBase = data.rates[from];
+        const toBase = data.rates[to];
         
-        // Calculate cross rate identical to the Live Hub
-        const rate = pkrBase / fromBase;
+        const rate = toBase / fromBase;
         const total = (amount * rate).toFixed(2);
         
-        resultEl.innerText = `${total} PKR`;
+        resultEl.innerText = `${total} ${to}`;
     } catch (err) {
         resultEl.innerText = "❌ Error fetching rate";
     }
@@ -554,53 +553,19 @@ function resetTasbeeh() {
     }
 }
 
-// 2. Pakistan Prayer Times (Real-Time API Expansion)
-const pkCities = [
-    "Karachi", "Lahore", "Faisalabad", "Rawalpindi", "Gujranwala", "Peshawar", "Multan", "Hyderabad", "Islamabad", "Quetta",
-    "Bahawalpur", "Sargodha", "Sialkot", "Sukkur", "Jhang", "Larkana", "Sheikhupura", "Rahim Yar Khan", "Gujrat", "Sahiwal",
-    "Wah Cantonment", "Mardan", "Kasur", "Okara", "Mingora", "Nawabshah", "Chiniot", "Kotri", "Kāmoke", "Hafizabad",
-    "Sadiqabad", "Mirpur Khas", "Burewala", "Kohat", "Khanewal", "Dera Ghazi Khan", "Shikarpur", "Muzaffargarh", "Mandi Bahauddin", "Abbottabad",
-    "Murree", "Swat", "Muzaffarabad", "Mirpur (AJK)", "Gilgit", "Skardu", "Gwadar", "Turbat", "Khuzdar", "Chaman",
-    "Mianwali", "Nowshera", "Attock", "Jhelum", "Dera Ismail Khan", "Jacobabad", "Mansehra", "Haripur", "Parachinar", "Wana"
-];
-
-async function updatePrayerTimes(city = "Lahore", isSearching = false) {
+// 2. Global Prayer Times (Real-Time API Expansion)
+async function updatePrayerTimes(query = "London", isSearching = false) {
     const cityDisplay = document.getElementById('prayer-city-display');
-    const listEl = document.getElementById('prayerCityList');
-    const searchInput = document.getElementById('prayerCitySearch');
-    
-    if (!isSearching && cityDisplay) cityDisplay.innerText = city.toUpperCase();
+    if (!query) return;
 
-    // Populate City List
-    if (listEl) {
-        const filter = (searchInput.value || "").toLowerCase();
-        listEl.innerHTML = "";
-        pkCities.forEach(c => {
-            if (filter && !c.toLowerCase().includes(filter)) return;
-            const div = document.createElement('div');
-            const isActive = c.toLowerCase() === (city || "").toLowerCase();
-            div.style.cssText = `padding: 10px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; color: #fff; transition: 0.2s; border-radius: 8px; margin-bottom: 2px; ${isActive ? 'background: var(--orange-black-grad); background-size: 400% 400%; animation: rainbow-flow 2.5s linear infinite; color: #fff; font-weight: 800; box-shadow: 0 0 10px rgba(0,0,0,0.5);' : ''}`;
-            div.innerText = c;
-            if (!isActive) {
-                div.onmouseover = () => div.style.background = "rgba(255,255,255,0.1)";
-                div.onmouseout = () => div.style.background = "transparent";
-            }
-            div.onclick = () => {
-                // Don't clear search, just update selection
-                updatePrayerTimes(c, false);
-            };
-            listEl.appendChild(div);
-        });
-        if (listEl.innerHTML === "") listEl.innerHTML = '<div style="font-size: 0.7rem; opacity: 0.5; padding: 10px;">No cities found.</div>';
-    }
-
-    if (isSearching) return; // Only update list while searching
+    if (!isSearching && cityDisplay) cityDisplay.innerText = query.toUpperCase();
 
     try {
-        const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=Pakistan&method=2`);
+        const res = await fetch(`https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(query)}&method=2`);
         const data = await res.json();
+        if (data.code !== 200) throw new Error("Location not found");
+        
         const timings = data.data.timings;
-
         document.getElementById('fajr').innerText = timings.Fajr;
         document.getElementById('dhuhr').innerText = timings.Dhuhr;
         document.getElementById('asr').innerText = timings.Asr;
@@ -609,7 +574,9 @@ async function updatePrayerTimes(city = "Lahore", isSearching = false) {
         
         document.getElementById('prayerTimes').style.animation = 'none';
         setTimeout(() => { document.getElementById('prayerTimes').style.animation = 'glow-pulse 1s ease'; }, 10);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        if (cityDisplay) cityDisplay.innerText = "NOT FOUND";
+    }
 }
 
 // 5. Urdu Voice-to-Text (Premium Overhaul)
@@ -714,95 +681,54 @@ function copyUrduText() {
     alert("Urdu text copied!");
 }
 
-// 6. Live Pakistan Hub (Cricket & News) - ZABARDAST REAL-TIME
+// 6. World Live Hub
 async function refreshLiveHub() {
-    console.log("Syncing Live Hub Data...");
-    const pakScore = document.getElementById('pak-score');
-    const matchStatus = document.getElementById('match-status');
-    const newsTicker = document.getElementById('news-ticker');
-
-    // MOCKING LIVE CRICKET DATA (Simulating March 2026 Series)
-    // In a real scenario, this would fetch from a Cricket API
-    const scores = ["158/4", "162/4", "165/5", "169/5", "174/5"];
-    const currentScore = scores[Math.floor(Math.random() * scores.length)];
-    const overs = (18 + Math.random()).toFixed(1);
-    
-    if(pakScore) {
-        pakScore.innerText = currentScore;
-        matchStatus.innerText = `${overs} Overs (Babar Azam 84*)`;
-        matchStatus.style.animation = 'glow-pulse 0.5s ease';
-    }
-
-    // UPDATE NEWS TICKER
-    const newsItems = [
-        "پاکستان اور نیوزی لینڈ کے درمیان ٹی 20 سیریز کا آج بڑا مقابلہ",
-        "عالمی منڈی میں تیل کی قیمتوں میں استحکام، پاکستان میں بھی ریٹ برقرار",
-        "پنجاب میں بارشوں کا نیا سلسلہ شروع ہونے کا امکان، الرٹ جاری",
-        "پاکستان کرکٹ ٹیم کی تیاریاں عروج پر، میگا ایونٹ کیلئے اسکواڈ فائنل",
-        "ڈالر کی قیمت میں معمولی کمی، روپے کی قدر میں استحکام"
-    ];
-    
-    if(newsTicker) {
-        newsTicker.innerHTML = newsItems.map(item => `
-            <div style="font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; font-size: 0.95rem; line-height: 1.8; color: #fff; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                - ${item}
-            </div>
-        `).join('');
-    }
-}
-
-
-
-// 6. Live Pakistan Hub (STRICT COLOR & FONT SYNC)
-async function refreshLiveHub() {
-    console.log("Syncing Hub (Strict Mode)...");
+    console.log("Syncing World Hub...");
     const newsTicker = document.getElementById('news-ticker');
     const currencyGrid = document.getElementById('currency-grid');
 
-    // 1. URDU NEWS (Noto Nastaliq)
+    // 1. GLOBAL NEWS (BBC World News English via RSS2JSON)
     try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.bbc.com/urdu/index.xml');
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/world/rss.xml');
         const data = await res.json();
         if (data.items) {
-            newsTicker.innerHTML = data.items.slice(0, 5).map(item => `
-                <div style="font-family: 'Noto Nastaliq Urdu', serif; font-size: 1.1rem; line-height: 2.2; color: var(--text-brown); margin-bottom: 20px; border-bottom: 1px solid rgba(166, 124, 82, 0.1); padding-bottom: 15px; direction: rtl;">
-                    • ${item.title} <br>
-                    <a href="${item.link}" target="_blank" style="color: var(--accent-gold); text-decoration: none; font-size: 0.8rem; font-weight: 800;">[تفصیلات]</a>
+            newsTicker.innerHTML = data.items.slice(0, 6).map(item => `
+                <div style="font-family: 'Poppins', sans-serif; font-size: 0.95rem; line-height: 1.6; color: var(--text-brown); margin-bottom: 15px; border-bottom: 1px solid rgba(166, 124, 82, 0.1); padding-bottom: 10px; direction: ltr; text-align: left;">
+                    🌍 ${item.title} <br>
+                    <a href="${item.link}" target="_blank" style="color: var(--accent-gold); text-decoration: none; font-size: 0.75rem; font-weight: 800;">[READ MORE]</a>
                 </div>
             `).join('');
         }
-    } catch(e) { newsTicker.innerText = "خبریں لوڈ نہیں ہو سکیں۔"; }
+    } catch(e) { newsTicker.innerText = "News Feed Error."; }
 
-    // 2. CURRENCY GRID (Colors Sync)
+    // 2. WORLD CURRENCY Grid (vs USD)
     try {
         const cRes = await fetch('https://open.er-api.com/v6/latest/USD');
         const cData = await cRes.json();
-        const pkrBase = cData.rates.PKR;
         
         const currencies = [
-            { code: 'USD', name: 'US Dollar', icon: '🇺🇸' },
-            { code: 'SAR', name: 'Saudi Riyal', icon: '🇸🇦' },
-            { code: 'AED', name: 'UAE Dirham', icon: '🇦🇪' },
-            { code: 'GBP', name: 'UK Pound', icon: '🇬🇧' },
             { code: 'EUR', name: 'Euro', icon: '🇪🇺' },
-            { code: 'KWD', name: 'Kuwaiti Dinar', icon: '🇰🇼' },
-            { code: 'OMR', name: 'Omani Rial', icon: '🇴🇲' },
-            { code: 'CAD', name: 'Canadian $', icon: '🇨🇦' },
+            { code: 'GBP', name: 'UK Pound', icon: '🇬🇧' },
+            { code: 'JPY', name: 'Japanese Yen', icon: '🇯🇵' },
             { code: 'AUD', name: 'Australian $', icon: '🇦🇺' },
-            { code: 'JPY', name: 'Japanese Yen', icon: '🇯🇵' }
+            { code: 'CAD', name: 'Canadian $', icon: '🇨🇦' },
+            { code: 'CHF', name: 'Swiss Franc', icon: '🇨🇭' },
+            { code: 'CNY', name: 'Chinese Yuan', icon: '🇨🇳' },
+            { code: 'INR', name: 'Indian Rupee', icon: '🇮🇳' },
+            { code: 'PKR', name: 'Pak Rupee', icon: '🇵🇰' },
+            { code: 'AED', name: 'UAE Dirham', icon: '🇦🇪' }
         ];
 
         currencyGrid.innerHTML = currencies.map(curr => {
-            const rate = (pkrBase / cData.rates[curr.code]).toFixed(2);
+            const rate = cData.rates[curr.code].toFixed(2);
             return `
                 <div style="background: rgba(166, 124, 82, 0.05); border: 1px solid rgba(166, 124, 82, 0.15); border-radius: 15px; padding: 15px; text-align: center; color: var(--text-brown);">
                     <div style="font-size: 1.4rem; margin-bottom: 8px;">${curr.icon}</div>
-                    <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.7; text-transform: uppercase;">${curr.code} TO PKR</div>
-                    <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-brown); margin-top: 5px;">Rs ${rate}</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.7; text-transform: uppercase;">1 USD TO ${curr.code}</div>
+                    <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-brown); margin-top: 5px;">${rate}</div>
                 </div>
             `;
         }).join('');
-        
     } catch(e) { currencyGrid.innerText = "Market Sync Error."; }
 }
 
