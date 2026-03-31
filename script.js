@@ -561,7 +561,8 @@ async function updatePrayerTimes(query = "London", isSearching = false) {
     if (!isSearching && cityDisplay) cityDisplay.innerText = query.toUpperCase();
 
     try {
-        const res = await fetch(`https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(query)}&method=2`);
+        const timestamp = new Date().getTime();
+        const res = await fetch(`https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(query)}&method=2&_t=${timestamp}`);
         const data = await res.json();
         if (data.code !== 200) throw new Error("Location not found");
         
@@ -710,9 +711,8 @@ async function refreshLiveHub() {
             { code: 'EUR', name: 'Euro', icon: '🇪🇺' },
             { code: 'GBP', name: 'UK Pound', icon: '🇬🇧' },
             { code: 'JPY', name: 'Japanese Yen', icon: '🇯🇵' },
-            { code: 'AUD', name: 'Australian $', icon: '🇦🇺' },
-            { code: 'CAD', name: 'Canadian $', icon: '🇨🇦' },
-            { code: 'CHF', name: 'Swiss Franc', icon: '🇨🇭' },
+            { code: 'KWD', name: 'Kuwaiti Dinar', icon: '🇰🇼' },
+            { code: 'SAR', name: 'Saudi Riyal', icon: '🇸🇦' },
             { code: 'CNY', name: 'Chinese Yuan', icon: '🇨🇳' },
             { code: 'INR', name: 'Indian Rupee', icon: '🇮🇳' },
             { code: 'PKR', name: 'Pak Rupee', icon: '🇵🇰' },
