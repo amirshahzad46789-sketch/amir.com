@@ -177,15 +177,15 @@
                             <select id="currFrom" style="width: 70px;">
                                 <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option>
                                 <option value="PKR">PKR</option><option value="INR">INR</option><option value="AED">AED</option>
-                                <option value="SAR">SAR</option><option value="KWD">KWD</option><option value="CAD">CAD</option>
-                                <option value="AUD">AUD</option><option value="CNY">CNY</option><option value="JPY">JPY</option>
+                                <option value="SAR">SAR</option><option value="KWD">KWD</option><option value="CNY">CNY</option>
+                                <option value="JPY">JPY</option>
                             </select>
                             <span style="font-weight: 800; font-size: 0.8rem;">To</span>
                             <select id="currTo" style="width: 70px;">
                                 <option value="PKR">PKR</option><option value="INR">INR</option><option value="USD">USD</option>
                                 <option value="EUR">EUR</option><option value="GBP">GBP</option><option value="AED">AED</option>
-                                <option value="SAR">SAR</option><option value="KWD">KWD</option><option value="CAD">CAD</option>
-                                <option value="AUD">AUD</option><option value="CNY">CNY</option><option value="JPY">JPY</option>
+                                <option value="SAR">SAR</option><option value="KWD">KWD</option><option value="CNY">CNY</option>
+                                <option value="JPY">JPY</option>
                             </select>
                         </div>
                         <div id="currResult" style="font-weight: bold; margin-top: 10px;">---</div>
@@ -230,8 +230,9 @@
                 <div class="card gadget-card" style="min-height: 480px; display: flex; flex-direction: column;">
                     <div class="icon">🕋</div>
                     <label>Global Prayer Times</label>
-                    <div style="width: 100%; margin-bottom: 12px;">
-                        <input type="text" id="prayerCitySearch" placeholder="Type city & press Enter (e.g. Mumbai)" class="flux-box-anim" onkeypress="if(event.key === 'Enter') updatePrayerTimes(this.value, false)" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid rgba(166,124,82,0.2); outline: none; background: rgba(255,255,255,0.6); color: var(--text-brown); font-size: 0.95rem; font-family: 'Poppins', sans-serif;">
+                    <div style="width: 100%; margin-bottom: 12px; display: flex; gap: 8px;">
+                        <input type="text" id="prayerCitySearch" placeholder="Type city (e.g. Mumbai)" class="flux-box-anim" onkeypress="if(event.key === 'Enter') updatePrayerTimes(this.value, false)" style="flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(166,124,82,0.2); outline: none; background: rgba(255,255,255,0.6); color: var(--text-brown); font-size: 0.95rem; font-family: 'Poppins', sans-serif;">
+                        <button onclick="updatePrayerTimes(document.getElementById('prayerCitySearch').value, false)" style="background: var(--accent-gold); color: white; border: none; border-radius: 12px; padding: 0 15px; font-weight: bold; cursor: pointer;">🔍</button>
                     </div>
 
                     <div style="background: var(--card-bg); border-radius: 16px; padding: 15px; border: var(--glass-border); flex-grow: 1;">
