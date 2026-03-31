@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Multi-Portal | Premium Converters & Essential Services</title>
+    <meta name="description" content="A premium digital toolbox for Pakistan. Convert files (PDF, Word, Excel, Images) and access essential Pakistani service portals in one place.">
+    <meta name="keywords" content="Pakistan services, PDF converter, Word to PDF, Excel to PDF, Pakistani bills, NADRA, FBR, LESCO">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Outfit:wght@300;400;600;800&family=Poppins:wght@400;600;800&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav style="display: flex; justify-content: space-between; align-items: center; padding: 0 4%;">
+            <!-- Left Side: Logo + Tiny Nav -->
+            <div style="display: flex; align-items: center; gap: 30px;">
+                <div class="logo">PakPortal</div>
+                <ul style="display: flex; gap: 15px; margin: 0; padding: 0; list-style: none;">
+                    <li><a href="#converters" style="font-size: 0.85rem; opacity: 0.9;">Converters</a></li>
+                    <li><a href="#dashboard" style="font-size: 0.85rem; opacity: 0.9;">Services</a></li>
+                </ul>
+            </div>
+            
+            <!-- Right Side: Embossed Gadgets -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- Integrated Clock -->
+                <div class="header-gadget-box flux-box-anim" style="width: 165px; justify-content: center; flex-direction: column; align-items: center; gap: 2px;">
+                    <div id="header-date" style="font-size: 0.7rem; font-weight: 700; color: #f2c94c; text-transform: uppercase;">--</div>
+                    <div id="header-clock" class="monospaced-clock" style="line-height: 1;">00:00:00 AM</div>
+                </div>
+
+                <!-- Integrated Weather -->
+                <div style="position: relative;">
+                    <div class="header-gadget-box flux-box-anim" style="cursor: pointer; min-width: 140px;" onclick="toggleWeatherSearch()">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span id="weather-icon" style="font-size: 1.2rem;">🌦️</span>
+                            <span id="weather-temp" class="weather-temp-bold">--°C</span>
+                            <span id="weather-city" style="font-size: 0.65rem; font-weight: 800; opacity: 0.9; text-transform: uppercase; color: #fff;">Lahore</span>
+                        </div>
+                    </div>
+                    <!-- Global Search Dropdown -->
+                    <div id="weather-search-dropdown" class="search-dropdown" style="display: none;">
+                        <input type="text" id="city-autocomplete" placeholder="Global City Search..." autocomplete="off">
+                        <div id="search-results"></div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1 class="glow-text">
+                Your Premium Digital Toolbox
+            </h1>
+            <p class="urdu-text">پاکستان کا جدید اور خوبصورت ڈیجیٹل ڈیش بورڈ</p>
+        </section>
+
+        <section id="converters" class="section">
+            <h2 class="section-title">File Converters <span class="urdu-inline">(کنورٹرز)</span></h2>
+            <div class="grid">
+                <!-- 1. JPG to PDF -->
+                <div class="card converter-card">
+                    <div class="icon">📄</div>
+                    <label>JPG to PDF</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Quality</span><span id="jpgQualVal">80%</span></div>
+                        <input type="range" id="jpgQuality" min="10" max="100" value="80" oninput="document.getElementById('jpgQualVal').innerText=this.value+'%'">
+                    </div>
+                    <input type="file" id="jpgInput" accept="image/jpeg, image/jpg" hidden>
+                    <button onclick="document.getElementById('jpgInput').click()">Choose Image</button>
+                    <div id="jpgStatus" class="status"></div>
+                </div>
+
+                <!-- 2. Word to PDF (NEW/FIXED) -->
+                <div class="card converter-card">
+                    <div class="icon">📝</div>
+                    <label>Word to PDF</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Ready to Convert</span></div>
+                        <p style="font-size: 0.7rem; opacity: 0.7;">Premium Quality .docx to PDF</p>
+                    </div>
+                    <input type="file" id="wordInput" accept=".docx" hidden>
+                    <button onclick="document.getElementById('wordInput').click()">Choose Word</button>
+                    <div id="wordStatus" class="status"></div>
+                </div>
+
+                <!-- 4. PNG to JPG -->
+                <div class="card converter-card">
+                    <div class="icon">🖼️</div>
+                    <label>PNG to JPG</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Format</span><span>High Quality</span></div>
+                        <p style="font-size: 0.7rem; opacity: 0.7;">Convert PNG to Optimized JPG</p>
+                    </div>
+                    <input type="file" id="pngInput" accept="image/png" hidden>
+                    <button onclick="document.getElementById('pngInput').click()">Upload PNG</button>
+                    <div id="pngStatus" class="status"></div>
+                </div>
+
+                <!-- 5. Photo Resize -->
+                <div class="card converter-card">
+                    <div class="icon">📐</div>
+                    <label>Photo Resize</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Width</span><span id="resizWVal">1000px</span></div>
+                        <input type="range" id="resizeWidth" min="200" max="3000" step="100" value="1000" oninput="document.getElementById('resizWVal').innerText=this.value+'px'">
+                    </div>
+                    <input type="file" id="resizeInput" accept="image/*" hidden>
+                    <button onclick="document.getElementById('resizeInput').click()">Choose Photo</button>
+                    <div id="resizeStatus" class="status"></div>
+                </div>
+
+                <!-- 6. QR Generator -->
+                <div class="card converter-card">
+                    <div class="icon">🏁</div>
+                    <label>QR Generator</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Link/Text</span></div>
+                        <input type="text" id="qrText" placeholder="Enter link here" style="width: 100%; border-radius: 6px; padding: 5px;">
+                    </div>
+                    <button onclick="generateQR()">Generate QR</button>
+                    <div id="qrStatus" class="status"></div>
+                </div>
+
+                <!-- 10. Merge PDFs (REPLACED RESIZE) -->
+                <div class="card converter-card">
+                    <div class="icon">📑</div>
+                    <label>Merge PDFs</label>
+                    <div class="settings-panel" style="margin-bottom: 5px;">
+                        <div class="settings-row"><span>Combine Files</span></div>
+                        <p style="font-size: 0.7rem; opacity: 0.7;">Select multiple PDFs</p>
+                    </div>
+                    <input type="file" id="pdfMergeInput" accept=".pdf" multiple hidden>
+                    <button onclick="document.getElementById('pdfMergeInput').click()" style="background: var(--accent-gold); color: #fff;">Select PDFs</button>
+                    <div id="pdfMergeStatus" class="status"></div>
+                </div>
+
+                <!-- 7. Units & Measures (NEW) -->
+                <div class="card converter-card">
+                    <div class="icon">📐</div>
+                    <label>Unit Converter</label>
+                    <div class="settings-panel">
+                        <div class="settings-row">
+                            <input type="number" id="unitVal" value="1" style="width: 50px;">
+                            <select id="unitType" style="width: 80px;">
+                                <option value="ft2m">Feet to Meter</option>
+                                <option value="m2ft">Meter to Feet</option>
+                                <option value="kg2lb">KG to Lbs</option>
+                                <option value="lb2kg">Lbs to KG</option>
+                            </select>
+                        </div>
+                        <div id="unitResult" style="font-weight: 700; margin-top:10px;">---</div>
+                    </div>
+                    <button onclick="convertUnit()">Convert Now</button>
+                    <div id="unitStatus" class="status"></div>
+                </div>
+
+                 <!-- 8. PKR Exchange -->
+                 <div class="card converter-card">
+                    <div class="icon">🏦</div>
+                    <label>PKR Exchange</label>
+                    <div style="font-size: 0.65rem; color: #ffeb3b; text-align: center; margin-bottom: 5px; opacity: 0.9;">(Interbank Rate - Not Open Market)</div>
+                    <div class="settings-panel">
+                        <div class="settings-row">
+                            <input type="number" id="currAmount" value="1" style="width: 50px;">
+                            <select id="currFrom" style="width: 80px;">
+                                <option value="USD">USD</option>
+                                <option value="SAR">SAR</option>
+                                <option value="AED">AED</option>
+                                <option value="KWD">KWD</option>
+                                <option value="GBP">GBP</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div id="currResult" style="font-weight: bold; margin-top: 10px;">--- PKR</div>
+                    </div>
+                    <button onclick="convertCurrency()">Refresh Rate</button>
+                    <div id="currStatus" class="status"></div>
+                </div>
+
+                <!-- 9. YouTube Downloader (RENAMED) -->
+                <div class="card converter-card">
+                    <div class="icon">📥</div>
+                    <label>YouTube Downloader</label>
+                    <div class="settings-panel">
+                        <div class="settings-row"><span>Fast Links Generator</span></div>
+                        <input type="text" id="ytLink" placeholder="YouTube URL" style="width: 100%; border-radius: 6px; padding: 5px;">
+                    </div>
+                    <button onclick="loadYTVideo()">Get Download Links</button>
+                    <div id="ytStatus" class="status"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compact YouTube Downloader Box (RENAMED) -->
+        <section id="cinema" class="section" style="display: none; background: var(--card-bg); backdrop-filter: blur(20px); border-radius: 24px; padding: 30px; margin: 30px auto; max-width: 500px; border: var(--glass-border); box-shadow: var(--shadow);">
+            <h2 class="section-title" style="font-size: 1.6rem; margin-bottom: 20px;">Download Options <span class="urdu-inline">(ڈاؤن لوڈ)</span></h2>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <a id="watchOnYT" href="#" target="_blank" class="download-btn" style="width: 100%; height: 55px; font-size: 1.1rem;">🚀 Watch on YouTube</a>
+                <a id="ytDownloadLink" href="#" target="_blank" class="download-btn" style="width: 100%; height: 55px; font-size: 1.1rem;">📥 Download Video</a>
+                <button onclick="closeCinema()" style="background: transparent; color: var(--text-brown); box-shadow: none; height: auto; text-decoration: underline; margin-top: 10px; font-weight: 600;">Close This Box</button>
+            </div>
+        </section>
+
+        <!-- Smart Utilities / Premium Gadgets Section (NEW) -->
+        <section id="smart-utilities" class="section">
+            <h2 class="section-title">Smart Utilities <span class="urdu-inline">(سمارٹ یوٹیلیٹیز)</span></h2>
+            <div class="gadget-grid">
+                <!-- 1. Digital Tasbeeh -->
+                <!-- Expanded Prayer Times (ALL PAKISTAN) -->
+                <!-- Expanded Prayer Times (ALL PAKISTAN) -->
+                <!-- Compact Prayer Times (ALL PAKISTAN) -->
+                <div class="card gadget-card" style="min-height: 480px; display: flex; flex-direction: column;">
+                    <div class="icon">🕋</div>
+                    <label>Pakistan Prayer Times</label>
+                    <div style="width: 100%; margin-bottom: 12px;">
+                        <input type="text" id="prayerCitySearch" placeholder="Search City..." class="flux-box-anim" oninput="updatePrayerTimes(document.getElementById('prayer-city-display').innerText, true)" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid rgba(166,124,82,0.2); outline: none; background: rgba(255,255,255,0.6); color: var(--text-brown); font-size: 0.95rem; font-family: 'Poppins', sans-serif;">
+                    </div>
+
+                    <div id="prayerCityList" style="flex-grow: 1; overflow-y: auto; max-height: 180px; padding-right: 5px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; margin-bottom: 15px;">
+                        <div style="text-align: center; opacity: 0.6; padding: 15px; font-size: 0.8rem;">⏳ Loading Cities...</div>
+                    </div>
+
+                    <div style="background: var(--card-bg); border-radius: 16px; padding: 15px; border: var(--glass-border);">
+                        <div style="text-align: center; margin-bottom: 8px;">
+                            <h3 id="prayer-city-display" style="font-size: 1.3rem; margin: 0; background: var(--orange-black-grad); background-size: 400% 400%; -webkit-background-clip: text; color: transparent; animation: rainbow-flow 2.5s linear infinite; font-weight: 900;">Lahore</h3>
+                        </div>
+                        <div class="prayer-list" id="prayerTimes" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="p-row"><span>Fajr</span><span id="fajr">--:--</span></div>
+                            <div class="p-row"><span>Dhuhr</span><span id="dhuhr">--:--</span></div>
+                            <div class="p-row"><span>Asr</span><span id="asr">--:--</span></div>
+                            <div class="p-row"><span>Maghrib</span><span id="maghrib">--:--</span></div>
+                            <div class="p-row"><span>Isha</span><span id="isha">--:--</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Voice Studio (COMPACT & SYNCED) -->
+                <div class="card gadget-card" style="min-height: 480px; display: flex; flex-direction: column; background: rgba(20,20,20,0.95);">
+                    <div class="icon">🎙️</div>
+                    <label>AI Voice Studio <span class="urdu-inline">(صوتی ٹرانسکرپٹ)</span></label>
+                    
+                    <div style="position: relative; flex-grow: 1; margin: 15px 0;">
+                        <textarea id="urduTextResult" placeholder="Speak Urdu here..." style="width: 100%; height: 100%; min-height: 200px; border-radius: 20px; padding: 15px; font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; border: 1px solid rgba(255,193,7,0.2); background: rgba(255,255,255,0.05); color: #fff; font-size: 1.1rem; resize: none; outline: none; transition: 0.3s; line-height: 1.8;"></textarea>
+                        <div id="voiceWave" style="position: absolute; bottom: 15px; left: 15px; display: none; gap: 4px; align-items: flex-end; height: 25px;">
+                            <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                        </div>
+                    </div>
+
+                    <div id="voiceStatus" style="font-size: 0.65rem; font-weight: 800; color: var(--accent-gold); text-align: center; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">Ready to Record</div>
+
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <button id="voiceBtn" onclick="startVoiceRecognition()" class="flux-box-anim" style="flex: 1.5; height: 50px; font-weight: 800; border-radius: 10px; font-size: 0.85rem;">START RECORDING</button>
+                        <button onclick="copyUrduText()" class="flux-box-anim" style="flex: 1; height: 50px; font-weight: 700; border-radius: 10px; font-size: 0.85rem;">COPY</button>
+                        <button onclick="document.getElementById('urduTextResult').value=''; finalTranscript='';" class="flux-box-anim" style="flex: 1; height: 50px; font-weight: 700; border-radius: 10px; font-size: 0.85rem;">CLEAR</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Editor Section (RESTORED) -->
+        <section id="photo-editor" class="section">
+            <h2 class="section-title">AI Photo Editor <span class="urdu-inline">(ایڈیٹر)</span></h2>
+            <div class="card editor-card" style="max-width: 900px; margin: 0 auto;">
+                <div id="editorPlaceholder" style="text-align: center; padding: 50px; border: 2px dashed var(--accent-gold); border-radius: 20px; width: 100%; cursor: pointer;" onclick="document.getElementById('editorInput').click()">
+                    <div style="font-size: 3.5rem; margin-bottom: 15px;">🖼️</div>
+                    <p style="font-weight: 600; color: var(--text-brown);">Upload a photo to start editing with premium filters</p>
+                    <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Supports JPG, PNG, WEBP</p>
+                </div>
+                <canvas id="editorCanvas" style="display: none;"></canvas>
+                
+                <div class="editor-controls" style="width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 25px;">
+                    <div class="control-group">
+                        <div style="display: flex; justify-content: space-between;"><label>Brightness</label></div>
+                        <input type="range" id="bright" min="0" max="200" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label>Contrast</label>
+                        <input type="range" id="contrast" min="0" max="200" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label>Saturation</label>
+                        <input type="range" id="saturate" min="0" max="200" value="100">
+                    </div>
+                    <div class="control-group">
+                        <label>Hue Rotate</label>
+                        <input type="range" id="hue" min="0" max="360" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label>Grayscale</label>
+                        <input type="range" id="grayscale" min="0" max="100" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label>Sepia</label>
+                        <input type="range" id="sepia" min="0" max="100" value="0">
+                    </div>
+                    <div class="control-group">
+                        <label>Blur</label>
+                        <input type="range" id="blur" min="0" max="20" value="0">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; width: 100%; margin-top: 30px;">
+                    <input type="file" id="editorInput" accept="image/*" hidden>
+                    <button onclick="document.getElementById('editorInput').click()" class="flux-box-anim" style="flex: 1; height: 50px;">UPLOAD PHOTO</button>
+                    <button onclick="downloadEdit()" style="flex: 1; height: 50px; background: var(--accent-gold);">DOWNLOAD EDITED</button>
+                </div>
+            </div>
+
+
+        <!-- Productivity Hub -->
+        <section id="productivity-hub" class="section">
+            <h2 class="section-title">Productivity Hub <span class="urdu-inline">(پیداواری ٹولز)</span></h2>
+            <div class="dashboard-grid" style="margin-top: 20px;">
+                
+                <!-- 1. Pomodoro Focus Timer -->
+                <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 25px; min-height: 380px;">
+                    <div style="text-align: center; width: 100%;">
+                        <div class="icon" style="font-size: 2.5rem; margin-bottom: 15px;">⏳</div>
+                        <h3 style="color: var(--text-brown); font-size: 1.3rem; margin-bottom: 10px;">Focus Timer</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Stay productive with 25-min focus sessions.</p>
+                    </div>
+                    
+                    <div class="timer-display pulse-anim-off" id="pomodoro-time" style="font-family: 'Roboto Mono', monospace; font-size: 3.5rem; font-weight: 900; color: var(--accent-gold); text-shadow: 0 4px 15px rgba(166,124,82,0.3); margin: 20px 0; letter-spacing: -2px; border-radius: 50%; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; border: 6px solid var(--accent-gold); background: rgba(0,0,0,0.05); box-shadow: inset 0 0 15px rgba(166, 124, 82, 0.2);">
+                        25:00
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <button id="pomo-start-btn" onclick="startPomodoro()" class="flux-box-anim" style="flex: 2;">START FOCUS</button>
+                        <button onclick="resetPomodoro()" style="flex: 1; border: 2px solid var(--accent-gold); color: #fff;">RESET</button>
+                    </div>
+                </div>
+
+                <!-- 2. Expense Tracker -->
+                <div class="card" style="display: flex; flex-direction: column; padding: 25px; min-height: 380px; align-items: stretch;">
+                    <div style="text-align: center; width: 100%; margin-bottom: 15px;">
+                        <div class="icon" style="font-size: 2.5rem; margin-bottom: 5px;">💸</div>
+                        <h3 style="color: var(--text-brown); font-size: 1.3rem;">Expense Tracker</h3>
+                        <div style="font-size: 0.8rem; opacity: 0.7; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px;">
+                            <span>Total Spent:</span>
+                            <span id="expense-total" style="font-family: 'Roboto Mono', monospace; color: #e53935; font-weight: 800; font-size: 1rem;">Rs 0</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                        <input type="text" id="exp-desc" placeholder="E.g. Coffee" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
+                        <input type="number" id="exp-amount" placeholder="Rs" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
+                        <button onclick="addExpense()" style="flex: 0.5; padding: 0; min-width: 40px; background: var(--accent-gold); border-radius: 8px; border: none; font-size: 1.5rem; color: #fff;">+</button>
+                    </div>
+                    
+                    <div id="expense-list" style="flex: 1; overflow-y: auto; max-height: 150px; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; scrollbar-width: thin;">
+                        <!-- JS fills this -->
+                    </div>
+                </div>
+
+                <!-- 3. Digital Journal -->
+                <div class="card" style="display: flex; flex-direction: column; padding: 25px; min-height: 380px; align-items: stretch;">
+                    <div style="text-align: center; width: 100%; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="color: var(--text-brown); font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">📓 My Journal</h3>
+                        <div class="mood-selector" id="mood-selector" style="display: flex; gap: 5px; background: rgba(0,0,0,0.05); padding: 5px; border-radius: 20px;">
+                            <span class="mood-btn active" data-mood="😊" onclick="setMood('😊')" style="cursor: pointer; opacity: 1; transition: 0.2s;">😊</span>
+                            <span class="mood-btn" data-mood="😐" onclick="setMood('😐')" style="cursor: pointer; opacity: 0.4; transition: 0.2s;">😐</span>
+                            <span class="mood-btn" data-mood="😠" onclick="setMood('😠')" style="cursor: pointer; opacity: 0.4; transition: 0.2s;">😠</span>
+                        </div>
+                    </div>
+                    
+                    <div id="journal-list" style="flex: 1; overflow-y: auto; max-height: 200px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; scrollbar-width: thin; padding-right: 5px;">
+                        <!-- JS fills this -->
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px;">
+                        <textarea id="journal-input" placeholder="Type a note & press Enter... (Shift+Enter for new line)" onkeypress="handleJournalEnter(event)" style="flex: 1; min-height: 60px; resize: vertical; padding: 10px; border: 1px solid rgba(166,124,82,0.2); border-radius: 8px; background: rgba(255,255,255,0.7); outline: none; font-family: 'Poppins', sans-serif; color: var(--text-brown); line-height: 1.4;"></textarea>
+                        <button onclick="addJournalLine()" style="background: var(--accent-gold); border: none; border-radius: 8px; width: 60px; color: #fff; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="journal-status" style="font-size: 0.75rem; color: #4CAF50; opacity: 0; transition: opacity 0.3s; font-weight: 600;">Saved ✓</span>
+                        <button onclick="clearJournal()" style="width: auto; height: 35px; padding: 0 15px; font-size: 0.8rem; background: transparent; color: #f44336; border: 1px solid rgba(244,67,54,0.3);">CLEAR ALL</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Live Pakistan Hub (STRICT SYNC WITH SITE THEME) -->
+        <section id="pak-live-hub" class="section">
+            <h2 class="section-title">Pakistan Live Hub <span class="urdu-inline">(لائیو اپڈیٹس)</span></h2>
+            <div class="card" style="max-width: 950px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 30px; background: var(--card-bg); border-radius: 30px; border: var(--glass-border); box-shadow: var(--shadow);">
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 25px; width: 100%;">
+                    <!-- Left: Global to PKR Market (NO OVERLAP) -->
+                    <div style="flex: 1.6; min-width: 340px; background: rgba(245, 238, 220, 0.3); border-radius: 20px; padding: 25px; border: 1px solid rgba(166, 124, 82, 0.1); position: relative;">
+                        <div style="position: absolute; top: 15px; right: 20px; background: var(--orange-black-grad); background-size: 400% 400%; animation: rainbow-flow 2.5s linear infinite; color: #fff; font-size: 0.6rem; padding: 4px 10px; border-radius: 6px; font-weight: 900; letter-spacing: 1px;">LIVE SYNC</div>
+                        <h3 style="color: var(--text-brown); font-size: 1.1rem; margin-bottom: 5px; font-weight: 800; display: flex; align-items: center; gap: 10px;">📊 GLOBAL MARKET TO PKR</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-brown); opacity: 0.7; margin-bottom: 25px; font-weight: 600;">(Global Interbank Rates - May differ slightly from Local Open Market)</p>
+                        
+                        <div id="currency-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 20px; color: var(--text-brown);">
+                            <!-- Dynamically Loaded with zero overlap -->
+                            <div style="grid-column: 1 / -1; text-align: center; opacity: 0.5; padding: 30px;">Refining Rates...</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Urdu Breaking News Feed (Noto Nastaliq) -->
+                    <div style="flex: 1; min-width: 280px; background: rgba(45, 27, 24, 0.05); border-radius: 20px; padding: 25px; display: flex; flex-direction: column; border: 1px solid rgba(166, 124, 82, 0.15);">
+                        <h3 style="color: var(--text-brown); font-size: 1.1rem; margin-bottom: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px;">📰 تازہ ترین خبریں</h3>
+                        <div id="news-ticker" style="flex-grow: 1; overflow-y: auto; max-height: 300px; padding-right: 5px; font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; color: var(--text-brown);">
+                            <div style="text-align: center; opacity: 0.6; font-size: 0.9rem; padding: 40px;">خبریں لوڈ ہو رہی ہیں...</div>
+                        </div>
+                        <button onclick="refreshLiveHub()" class="flux-box-anim" style="margin-top: 20px; height: 45px; font-size: 0.85rem; border-radius: 12px; width: 100%; background: var(--accent-gold); color: #fff; font-weight: 800; border: none;">تازہ ترین اپڈیٹ</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+            <h2 class="section-title">Pakistan Services <span class="urdu-inline">(پاکستانی سروسز)</span></h2>
+            <div class="dashboard-grid">
+                <!-- Utility Bills -->
+                 <div class="dashboard-category">
+                    <h3>Utilities <span class="urdu-inline"> (بل کی ادائیگی)</span></h3>
+                    <div class="links">
+                        <a href="https://www.lesco.gov.pk/BillCheck" target="_blank">LESCO Bill Online</a>
+                        <a href="https://www.ke.com.pk/customer-services/bill-payment-options/" target="_blank">K-Electric Pay</a>
+                        <a href="https://www.sngpl.com.pk/web/billcheck" target="_blank">SNGPL (Gas Bill)</a>
+                        <a href="https://dbill.ptcl.net.pk/PTCLDuplicateBill.aspx" target="_blank">PTCL Duplicate Bill</a>
+                    </div>
+                 </div>
+
+                 <!-- Travel -->
+                 <div class="dashboard-category">
+                    <h3>Airlines <span class="urdu-inline"> (ایئر لائنز)</span></h3>
+                    <div class="links">
+                         <a href="https://www.piac.com.pk" target="_blank">PIA</a>
+                        <a href="https://www.airblue.com" target="_blank">AirBlue</a>
+                        <a href="https://www.sereneair.com" target="_blank">Serene Air</a>
+                        <a href="https://www.flyjinnah.com" target="_blank">Fly Jinnah</a>
+                        <a href="https://www.airsial.com" target="_blank">AirSial</a>
+                    </div>
+                 </div>
+
+                 <!-- Government -->
+                 <div class="dashboard-category">
+                    <h3>Govt Portals <span class="urdu-inline"> (حکومتی پورٹلز)</span></h3>
+                    <div class="links">
+                        <a href="https://www.fbr.gov.pk" target="_blank">FBR (Taxation)</a>
+                        <a href="https://id.nadra.gov.pk" target="_blank">NADRA (ID Cards)</a>
+                        <a href="https://passport.gov.pk" target="_blank">Passport Renewal</a>
+                        <a href="https://punjab.gov.pk" target="_blank">Punjab Portal</a>
+                        <a href="https://sindh.gov.pk" target="_blank">Sindh Portal</a>
+                    </div>
+                 </div>
+
+                 <!-- Education -->
+                 <div class="dashboard-category">
+                    <h3>Education <span class="urdu-inline"> (تعلیم)</span></h3>
+                    <div class="links">
+                        <a href="https://www.hec.gov.pk" target="_blank">HEC Pakistan</a>
+                        <a href="https://www.biselahore.com" target="_blank">BISE Lahore</a>
+                        <a href="https://www.fbise.edu.pk" target="_blank">FBISE (Federal Board)</a>
+                        <a href="https://ppsc.gop.pk" target="_blank">PPSC (Jobs)</a>
+                    </div>
+                 </div>
+
+                 <!-- News & Media -->
+                 <div class="dashboard-category">
+                    <h3>News & Media <span class="urdu-inline"> (خبریں اور میڈیا)</span></h3>
+                    <div class="links">
+                        <a href="https://www.dawn.com" target="_blank">Dawn News</a>
+                        <a href="https://www.geo.tv" target="_blank">Geo News</a>
+                        <a href="https://www.arynews.tv" target="_blank">ARY News</a>
+                        <a href="https://www.panc.gov.pk" target="_blank">Press Council</a>
+                    </div>
+                 </div>
+
+                 <!-- Health & Emergency -->
+                 <div class="dashboard-category">
+                    <h3>Health & Emergency <span class="urdu-inline"> (صحت اور ایمرجنسی)</span></h3>
+                    <div class="links">
+                        <a href="https://www.nhsrc.gov.pk" target="_blank">Health Ministry</a>
+                        <a href="https://rescue.org.pk" target="_blank">Rescue 1122</a>
+                        <a href="https://www.edhi.org" target="_blank">Edhi Foundation</a>
+                        <a href="https://www.shaukatkhanum.org.pk" target="_blank">Shaukat Khanum</a>
+                    </div>
+                 </div>
+
+                 <!-- Sports -->
+                 <div class="dashboard-category">
+                    <h3>Sports <span class="urdu-inline"> (کھیل)</span></h3>
+                    <div class="links">
+                        <a href="https://www.pcb.com.pk" target="_blank">Pakistan Cricket Board</a>
+                        <a href="https://pff.com.pk" target="_blank">Pakistan Football</a>
+                        <a href="https://www.pakistanhockey.com.pk" target="_blank">Pakistan Hockey</a>
+                    </div>
+                 </div>
+
+                 <!-- Careers & Jobs -->
+                 <div class="dashboard-category">
+                    <h3>Careers & Jobs <span class="urdu-inline"> (ملازمتیں)</span></h3>
+                    <div class="links">
+                        <a href="https://www.fpsc.gov.pk" target="_blank">FPSC (Federal)</a>
+                        <a href="https://www.nts.org.pk" target="_blank">NTS Testing</a>
+                        <a href="https://www.rozee.pk" target="_blank">Rozee.pk Portal</a>
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- NEW: My Saved Links Section -->
+        <section id="custom-links" class="section">
+            <h2 class="section-title">My Saved Links <span class="urdu-inline">(میرے محفوظ لنکس)</span></h2>
+            <div class="card" style="max-width: 950px; margin: 0 auto; padding: 30px; background: var(--card-bg); border-radius: 30px; border: var(--glass-border); box-shadow: var(--shadow);">
+                <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+                    <input type="text" id="customLinkName" placeholder="Link Name (e.g. My Website)" style="flex: 1; padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(166, 124, 82, 0.2); background: rgba(255,255,255,0.05); color: var(--text-brown); outline: none;">
+                    <input type="text" id="customLinkUrl" placeholder="https://example.com" style="flex: 2; padding: 12px 20px; border-radius: 12px; border: 1px solid rgba(166, 124, 82, 0.2); background: rgba(255,255,255,0.05); color: var(--text-brown); outline: none;">
+                    <button onclick="addCustomLink()" class="flux-box-anim" style="padding: 0 30px; height: 50px; background: var(--accent-gold); color: #fff; font-weight: 800; border: none; border-radius: 12px;">SAVE LINK</button>
+                </div>
+                
+                <div id="customLinksList" class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    <!-- Custom links will appear here -->
+                    <div style="grid-column: 1/-1; text-align: center; opacity: 0.5; padding: 20px;">No custom links saved yet.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p class="footer-rainbow">Pak multi portal designed by Amir Shahzad</p>
+        <p class="copyright">&copy; 2026 Pakistan Multi-Portal</p>
+    </footer>
+
+    <button id="backToTop" title="Go to top">↑</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
