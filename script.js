@@ -583,7 +583,8 @@ async function updatePrayerTimes(query = "London", isSearching = false) {
 // 5. Urdu Voice-to-Text (Premium Overhaul)
 let recognition;
 let isListening = false;
-let finalTranscript = ""; // Persistent transcript
+let sessionFinal = ""; // Final results for THIS session only
+let baseText = "";    // Text in the box BEFORE the current session started
 
 function startVoiceRecognition() {
     const btn = document.getElementById('voiceBtn');
@@ -601,8 +602,10 @@ function startVoiceRecognition() {
         return;
     }
 
-    // Capture existing text to avoid losing it if user typed or previous session ended
-    finalTranscript = result.value;
+    // Capture existing text to avoid losing it, and use it as base
+    baseText = result.value.trim();
+    if (baseText) baseText += " "; 
+    sessionFinal = "";
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
@@ -621,25 +624,38 @@ function startVoiceRecognition() {
 
     recognition.onresult = (event) => {
         let interimTranscript = "";
+        let currentSessionFinal = "";
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
-                finalTranscript += transcript + " ";
+                sessionFinal += transcript + " ";
             } else {
                 interimTranscript += transcript;
             }
         }
-        result.value = finalTranscript + interimTranscript;
+        
+        // Final text = Original Background Text + Everything finalized this session + current interim
+        result.value = baseText + sessionFinal + interimTranscript;
         result.scrollTop = result.scrollHeight;
     };
 
     recognition.onerror = (event) => {
-        stopVoiceRecognition();
-        status.innerText = `ERROR: ${event.error.toUpperCase()}`;
+        console.error("Speech Error:", event.error);
+        if (event.error === 'no-speech') {
+            status.innerText = "• SILENCE DETECTED •";
+        } else {
+            status.innerText = `ERROR: ${event.error.toUpperCase()}`;
+            stopVoiceRecognition();
+        }
     };
 
     recognition.onend = () => {
+        // If still listening but session ended (common on mobile), update base and restart
         if (isListening) {
+            baseText = result.value.trim();
+            if (baseText) baseText += " ";
+            sessionFinal = "";
             try { recognition.start(); } catch(e) { stopVoiceRecognition(); }
         } else {
             stopVoiceRecognition();
@@ -672,7 +688,11 @@ function stopVoiceRecognition() {
         status.innerText = "READY TO RECORD";
         status.style.color = "var(--accent-gold)";
     }
-    if (result) result.style.borderColor = "rgba(255,193,7,0.3)";
+    if (result) {
+        result.style.borderColor = "rgba(255,193,7,0.3)";
+        // Cleanup extra spaces
+        result.value = result.value.trim();
+    }
 }
 
 function copyUrduText() {
