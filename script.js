@@ -116,32 +116,30 @@ function setupConverters() {
                     
                     setStatus('wordStatus', '⏳ Generating PDF...');
 
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'pt', 'a4');
+                    const doc = new window.jspdf.jsPDF('p', 'pt', 'a4');
                     
                     const margin = 40;
-                    const pageWidth = doc.internal.pageSize.width;
+                    const pageWidth = doc.internal.pageSize.getWidth();
                     const maxLineWidth = pageWidth - margin * 2;
                     
-                    doc.setFontSize(12);
+                    doc.setFontSize(11);
                     doc.setFont("helvetica", "normal");
                     
-                    // Split text into lines that fit the page width
                     const lines = doc.splitTextToSize(text, maxLineWidth);
                     let y = margin;
-                    const pageHeight = doc.internal.pageSize.height;
+                    const pageHeight = doc.internal.pageSize.getHeight();
                     const lineHeight = 16;
                     
-                    for(let i=0; i<lines.length; i++) {
+                    lines.forEach(line => {
                         if (y > pageHeight - margin) {
                             doc.addPage();
                             y = margin;
                         }
-                        doc.text(lines[i], margin, y);
+                        doc.text(line, margin, y);
                         y += lineHeight;
-                    }
+                    });
 
-                    doc.save(file.name.replace(".docx", ".pdf"));
+                    doc.save(file.name.replace(".docx", ".pdf") || "document.pdf");
                     setStatus('wordStatus', '✅ Downloaded!');
                 } catch (procErr) {
                     alert(`Word to PDF Error: ${procErr.message}`);
@@ -554,7 +552,7 @@ function resetTasbeeh() {
 }
 
 // 2. Global Prayer Times (Real-Time API Expansion)
-async function updatePrayerTimes(query = "London", isSearching = false) {
+async function updatePrayerTimes(query = "Lahore", isSearching = false) {
     const cityDisplay = document.getElementById('prayer-city-display');
     if (!query) return;
 

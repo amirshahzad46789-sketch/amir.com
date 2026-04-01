@@ -227,17 +227,17 @@
                 <!-- Expanded Prayer Times (ALL PAKISTAN) -->
                 <!-- Expanded Prayer Times (ALL PAKISTAN) -->
                 <!-- Compact Prayer Times (ALL PAKISTAN) -->
-                <div class="card gadget-card" style="min-height: 480px; display: flex; flex-direction: column;">
+                <div class="card gadget-card" style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
                     <div class="icon">🕋</div>
                     <label>Global Prayer Times</label>
-                    <div style="width: 100%; margin-bottom: 12px; display: flex; gap: 8px;">
-                        <input type="text" id="prayerCitySearch" placeholder="Type city (e.g. Mumbai)" class="flux-box-anim" onkeypress="if(event.key === 'Enter') updatePrayerTimes(this.value, false)" style="flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(166,124,82,0.2); outline: none; background: rgba(255,255,255,0.6); color: var(--text-brown); font-size: 0.95rem; font-family: 'Poppins', sans-serif;">
-                        <button onclick="updatePrayerTimes(document.getElementById('prayerCitySearch').value, false)" style="background: var(--accent-gold); color: white; border: none; border-radius: 12px; padding: 0 15px; font-weight: bold; cursor: pointer;">🔍</button>
+                    <div style="width: 100%; margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <input type="text" id="prayerCitySearch" placeholder="Type city (e.g. Mumbai)" class="flux-box-anim" onkeypress="if(event.key === 'Enter') updatePrayerTimes(this.value, false)" style="flex: 1; padding: 10px; border-radius: 12px; border: 1px solid rgba(166,124,82,0.2); outline: none; background: rgba(255,255,255,0.6); color: var(--text-brown); font-size: 0.95rem; font-family: 'Poppins', sans-serif; min-width: 180px;">
+                        <button onclick="updatePrayerTimes(document.getElementById('prayerCitySearch').value, false)" style="background: var(--accent-gold); color: white; border: none; border-radius: 12px; padding: 0 15px; font-weight: bold; cursor: pointer; flex-shrink: 0;">🔍</button>
                     </div>
 
                     <div style="background: var(--card-bg); border-radius: 16px; padding: 15px; border: var(--glass-border); flex-grow: 1;">
                         <div style="text-align: center; margin-bottom: 8px;">
-                            <h3 id="prayer-city-display" style="font-size: 1.3rem; margin: 0; background: var(--orange-black-grad); background-size: 400% 400%; -webkit-background-clip: text; color: transparent; animation: rainbow-flow 2.5s linear infinite; font-weight: 900;">London</h3>
+                            <h3 id="prayer-city-display" style="font-size: 1.3rem; margin: 0; background: var(--orange-black-grad); background-size: 400% 400%; -webkit-background-clip: text; color: transparent; animation: rainbow-flow 2.5s linear infinite; font-weight: 900;">Lahore</h3>
                         </div>
                         <div class="prayer-list" id="prayerTimes" style="display: flex; flex-direction: column; gap: 8px;">
                             <div class="p-row"><span>Fajr</span><span id="fajr">--:--</span></div>
@@ -346,20 +346,20 @@
                 </div>
 
                 <!-- 2. Expense Tracker -->
-                <div class="card" style="display: flex; flex-direction: column; padding: 25px; min-height: 380px; align-items: stretch;">
+                <div class="card" style="display: flex; flex-direction: column; padding: 25px; align-items: stretch; width: 100%;">
                     <div style="text-align: center; width: 100%; margin-bottom: 15px;">
                         <div class="icon" style="font-size: 2.5rem; margin-bottom: 5px;">💸</div>
                         <h3 style="color: var(--text-brown); font-size: 1.3rem;">Expense Tracker</h3>
-                        <div style="font-size: 0.8rem; opacity: 0.7; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px;">
+                        <div style="font-size: 0.8rem; opacity: 0.7; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px; flex-wrap: wrap; gap: 5px;">
                             <span>Total Spent:</span>
                             <span id="expense-total" style="font-family: 'Roboto Mono', monospace; color: #e53935; font-weight: 800; font-size: 1rem;">Rs 0</span>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                        <input type="text" id="exp-desc" placeholder="E.g. Coffee" style="flex: 2; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
-                        <input type="number" id="exp-amount" placeholder="Rs" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
-                        <button onclick="addExpense()" style="flex: 0.5; padding: 0; min-width: 40px; background: var(--accent-gold); border-radius: 8px; border: none; font-size: 1.5rem; color: #fff;">+</button>
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" id="exp-desc" placeholder="E.g. Coffee" style="flex: 1; min-width: 120px; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
+                        <input type="number" id="exp-amount" placeholder="Rs" style="flex: 0.5; min-width: 60px; padding: 10px; border-radius: 8px; border: 1px solid rgba(166,124,82,0.3); outline: none; background: rgba(255,255,255,0.5);">
+                        <button onclick="addExpense()" style="width: auto; flex-shrink: 0; padding: 0 15px; height: 40px; background: var(--accent-gold); border-radius: 8px; border: none; font-size: 1.5rem; color: #fff;">+</button>
                     </div>
                     
                     <div id="expense-list" style="flex: 1; overflow-y: auto; max-height: 150px; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; scrollbar-width: thin;">
@@ -427,16 +427,7 @@
         </section>
             <h2 class="section-title">Pakistan Services <span class="urdu-inline">(پاکستانی سروسز)</span></h2>
             <div class="dashboard-grid">
-                <!-- Utility Bills -->
-                 <div class="dashboard-category">
-                    <h3>Utilities <span class="urdu-inline"> (بل کی ادائیگی)</span></h3>
-                    <div class="links">
-                        <a href="https://www.lesco.gov.pk/BillCheck" target="_blank">LESCO Bill Online</a>
-                        <a href="https://www.ke.com.pk/customer-services/bill-payment-options/" target="_blank">K-Electric Pay</a>
-                        <a href="https://www.sngpl.com.pk/web/billcheck" target="_blank">SNGPL (Gas Bill)</a>
-                        <a href="https://dbill.ptcl.net.pk/PTCLDuplicateBill.aspx" target="_blank">PTCL Duplicate Bill</a>
-                    </div>
-                 </div>
+
 
                  <!-- Travel -->
                  <div class="dashboard-category">
@@ -488,8 +479,6 @@
                  <div class="dashboard-category">
                     <h3>Health & Emergency <span class="urdu-inline"> (صحت اور ایمرجنسی)</span></h3>
                     <div class="links">
-                        <a href="https://www.nhsrc.gov.pk" target="_blank">Health Ministry</a>
-                        <a href="https://rescue.org.pk" target="_blank">Rescue 1122</a>
                         <a href="https://www.edhi.org" target="_blank">Edhi Foundation</a>
                         <a href="https://www.shaukatkhanum.org.pk" target="_blank">Shaukat Khanum</a>
                     </div>

@@ -907,12 +907,19 @@ footer .copyright {
     
     /* Overrides for inline min-width causing overflow */
     div[style*="min-width: 340px"], 
-    div[style*="min-width: 280px"] {
+    div[style*="min-width: 280px"],
+    div[style*="min-height: 480px"] {
         min-width: 100% !important;
+        min-height: auto !important;
     }
     
-    /* Overrides for header gadget sizes */
-    .header-gadget-box { width: auto !important; min-width: auto !important; padding: 8px 15px; }
+    /* Ensure gadgets like the prayer city search and inputs are 100% wide */
+    .gadget-card input, .gadget-card button, .gadget-card div {
+        max-width: 100% !important;
+    }
+
+    /* Fix header gadget sizes */
+    .header-gadget-box { width: 100% !important; min-width: auto !important; padding: 12px 15px; margin: 5px 0; }
     
     /* Ensure widgets take full width on mobile */
     .gadget-card, .converter-card, #pak-live-hub .card > div > div {
