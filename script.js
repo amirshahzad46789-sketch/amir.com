@@ -551,6 +551,52 @@ function resetTasbeeh() {
     }
 }
 
+// --- Prayer Search & Autocomplete Logic ---
+let prayerDebounceTimer;
+async function searchPrayerCities(query) {
+    const resultsContainer = document.getElementById('prayer-search-results');
+    if (!query || query.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    clearTimeout(prayerDebounceTimer);
+    prayerDebounceTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`);
+            const data = await res.json();
+            
+            if (data.results && data.results.length > 0) {
+                displayPrayerSuggestions(data.results);
+            } else {
+                resultsContainer.style.display = 'none';
+            }
+        } catch (e) {
+            console.error("Geo Search Error:", e);
+        }
+    }, 400);
+}
+
+function displayPrayerSuggestions(results) {
+    const container = document.getElementById('prayer-search-results');
+    container.innerHTML = results.map(city => `
+        <div onclick="selectPrayerCity('${city.name.replace(/'/g, "\\'")}', '${(city.country || '').replace(/'/g, "\\'")}')" 
+             style="padding: 12px 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; color: #333; transition: 0.2s;"
+             onmouseover="this.style.background='rgba(166,124,82,0.1)'"
+             onmouseout="this.style.background='#fff'">
+            <strong>${city.name}</strong>, <span style="opacity: 0.7;">${city.country || ''}</span>
+        </div>
+    `).join('');
+    container.style.display = 'block';
+}
+
+function selectPrayerCity(name, country) {
+    const fullAddress = country ? `${name}, ${country}` : name;
+    document.getElementById('prayerCitySearch').value = fullAddress;
+    document.getElementById('prayer-search-results').style.display = 'none';
+    updatePrayerTimes(fullAddress, false);
+}
+
 // 2. Global Prayer Times (Real-Time API Expansion)
 async function updatePrayerTimes(query = "Lahore", isSearching = false) {
     const cityDisplay = document.getElementById('prayer-city-display');
@@ -1098,15 +1144,7 @@ function loadCustomLinks() {
     `).join('');
 }
 
-// Global Search Event for Prayer Cities
-document.addEventListener('DOMContentLoaded', () => {
-    const pSearch = document.getElementById('prayerCitySearch');
-    if (pSearch) {
-        pSearch.addEventListener('input', () => {
-            updatePrayerTimes('Lahore', true); // Only filter list
-        });
-    }
-});
+// Removed redundant/buggy prayer city input listener
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
