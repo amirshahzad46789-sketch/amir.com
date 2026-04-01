@@ -583,8 +583,7 @@ async function updatePrayerTimes(query = "London", isSearching = false) {
 // 5. Urdu Voice-to-Text (Premium Overhaul)
 let recognition;
 let isListening = false;
-let sessionFinal = ""; // Final results for THIS session only
-let baseText = "";    // Text in the box BEFORE the current session started
+let baseText = ""; 
 
 function startVoiceRecognition() {
     const btn = document.getElementById('voiceBtn');
@@ -602,63 +601,75 @@ function startVoiceRecognition() {
         return;
     }
 
-    // Capture existing text to avoid losing it, and use it as base
+    // Capture the state BEFORE starting
     baseText = result.value.trim();
     if (baseText) baseText += " "; 
-    sessionFinal = "";
+    
+    isListening = true;
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     recognition.lang = 'ur-PK';
-    recognition.continuous = true;
+    
+    // KEY CHANGE FOR MOBILE: Use continuous = false for better stability
+    // We handle "continuity" ourselves via onend restarts.
+    recognition.continuous = false; 
     recognition.interimResults = true;
 
     recognition.onstart = () => {
-        isListening = true;
         btn.innerHTML = 'STOP RECORDING';
         if (wave) wave.style.display = "flex";
-        status.innerText = "• LISTENING LIVE •";
+        status.innerText = "• LISTENING •";
         status.style.color = "#ff4444";
         result.style.borderColor = "var(--accent-gold)";
     };
 
     recognition.onresult = (event) => {
         let interimTranscript = "";
-        let currentSessionFinal = "";
+        let sessionFinal = "";
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Build current session results from index 0 every time to ensure no duplication
+        for (let i = 0; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
+                // If its final, we add it to the final pool
                 sessionFinal += transcript + " ";
             } else {
                 interimTranscript += transcript;
             }
         }
         
-        // Final text = Original Background Text + Everything finalized this session + current interim
         result.value = baseText + sessionFinal + interimTranscript;
         result.scrollTop = result.scrollHeight;
     };
 
     recognition.onerror = (event) => {
-        console.error("Speech Error:", event.error);
-        if (event.error === 'no-speech') {
-            status.innerText = "• SILENCE DETECTED •";
-        } else {
+        if (event.error !== 'no-speech') {
+            console.error("Speech Error:", event.error);
             status.innerText = `ERROR: ${event.error.toUpperCase()}`;
-            stopVoiceRecognition();
+            // For severe errors, stop completely
+            if (event.error === 'network' || event.error === 'not-allowed') {
+                stopVoiceRecognition();
+            }
         }
     };
 
     recognition.onend = () => {
-        // If still listening but session ended (common on mobile), update base and restart
+        // If the user hasn't clicked STOP, we restart for "fake" continuous mode
         if (isListening) {
+            // Update baseText to include whatever was finalized in the last session
             baseText = result.value.trim();
             if (baseText) baseText += " ";
-            sessionFinal = "";
-            try { recognition.start(); } catch(e) { stopVoiceRecognition(); }
+            
+            try {
+                recognition.start();
+            } catch(e) {
+                console.warn("Restart failed, trying again...");
+                setTimeout(() => { if(isListening) recognition.start(); }, 300);
+            }
         } else {
-            stopVoiceRecognition();
+            status.innerText = "READY TO RECORD";
+            status.style.color = "var(--accent-gold)";
         }
     };
 
@@ -667,18 +678,19 @@ function startVoiceRecognition() {
     } catch (e) {
         console.error(e);
         isListening = false;
+        stopVoiceRecognition();
     }
 }
 
 function stopVoiceRecognition() {
+    isListening = false;
     const btn = document.getElementById('voiceBtn');
     const status = document.getElementById('voiceStatus');
     const wave = document.getElementById('voiceWave');
     const result = document.getElementById('urduTextResult');
 
-    isListening = false;
     if (recognition) {
-        recognition.onend = null;
+        recognition.onend = null; // Prevent loop
         try { recognition.stop(); } catch(e) {}
     }
     
@@ -690,7 +702,6 @@ function stopVoiceRecognition() {
     }
     if (result) {
         result.style.borderColor = "rgba(255,193,7,0.3)";
-        // Cleanup extra spaces
         result.value = result.value.trim();
     }
 }
