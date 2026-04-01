@@ -688,44 +688,45 @@ async function refreshLiveHub() {
     const newsTicker = document.getElementById('news-ticker');
     const currencyGrid = document.getElementById('currency-grid');
 
-    // 1. GLOBAL NEWS (BBC World News English via RSS2JSON)
+    // 1. URDU NEWS (BBC Urdu via RSS2JSON)
     try {
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/world/rss.xml');
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.bbci.co.uk/urdu/rss.xml');
         const data = await res.json();
         if (data.items) {
-            newsTicker.innerHTML = data.items.slice(0, 6).map(item => `
-                <div style="font-family: 'Poppins', sans-serif; font-size: 0.95rem; line-height: 1.6; color: var(--text-brown); margin-bottom: 15px; border-bottom: 1px solid rgba(166, 124, 82, 0.1); padding-bottom: 10px; direction: ltr; text-align: left;">
-                    🌍 ${item.title} <br>
-                    <a href="${item.link}" target="_blank" style="color: var(--accent-gold); text-decoration: none; font-size: 0.75rem; font-weight: 800;">[READ MORE]</a>
+            newsTicker.innerHTML = data.items.slice(0, 8).map(item => `
+                <div style="font-family: 'Noto Nastaliq Urdu', serif; font-size: 1rem; line-height: 2.2; color: var(--text-brown); margin-bottom: 20px; border-bottom: 1px solid rgba(166, 124, 82, 0.15); padding-bottom: 15px; direction: rtl; text-align: right;">
+                    📢 ${item.title} <br>
+                    <a href="${item.link}" target="_blank" style="color: var(--accent-gold); text-decoration: none; font-size: 0.8rem; font-weight: 800; font-family: 'Poppins', sans-serif;">[مزید پڑھیں]</a>
                 </div>
             `).join('');
         }
     } catch(e) { newsTicker.innerText = "News Feed Error."; }
 
-    // 2. WORLD CURRENCY Grid (vs USD)
+    // 2. WORLD CURRENCY Grid (Value of 1 Foreign Unit in PKR)
     try {
-        const cRes = await fetch('https://open.er-api.com/v6/latest/USD');
+        const cRes = await fetch('https://open.er-api.com/v6/latest/PKR');
         const cData = await cRes.json();
         
         const currencies = [
+            { code: 'USD', name: 'US Dollar', icon: '🇺🇸' },
             { code: 'EUR', name: 'Euro', icon: '🇪🇺' },
             { code: 'GBP', name: 'UK Pound', icon: '🇬🇧' },
-            { code: 'JPY', name: 'Japanese Yen', icon: '🇯🇵' },
-            { code: 'KWD', name: 'Kuwaiti Dinar', icon: '🇰🇼' },
             { code: 'SAR', name: 'Saudi Riyal', icon: '🇸🇦' },
+            { code: 'AED', name: 'UAE Dirham', icon: '🇦🇪' },
+            { code: 'CAD', name: 'Canadian Dollar', icon: '🇨🇦' },
+            { code: 'OMR', name: 'Omani Rial', icon: '🇴🇲' },
+            { code: 'KWD', name: 'Kuwaiti Dinar', icon: '🇰🇼' },
             { code: 'CNY', name: 'Chinese Yuan', icon: '🇨🇳' },
-            { code: 'INR', name: 'Indian Rupee', icon: '🇮🇳' },
-            { code: 'PKR', name: 'Pak Rupee', icon: '🇵🇰' },
-            { code: 'AED', name: 'UAE Dirham', icon: '🇦🇪' }
+            { code: 'INR', name: 'Indian Rupee', icon: '🇮🇳' }
         ];
 
         currencyGrid.innerHTML = currencies.map(curr => {
-            const rate = cData.rates[curr.code].toFixed(2);
+            const rateToPkr = 1 / cData.rates[curr.code];
             return `
                 <div style="background: rgba(166, 124, 82, 0.05); border: 1px solid rgba(166, 124, 82, 0.15); border-radius: 15px; padding: 15px; text-align: center; color: var(--text-brown);">
                     <div style="font-size: 1.4rem; margin-bottom: 8px;">${curr.icon}</div>
-                    <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.7; text-transform: uppercase;">1 USD TO ${curr.code}</div>
-                    <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-brown); margin-top: 5px;">${rate}</div>
+                    <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.7; text-transform: uppercase;">1 ${curr.code} TO PKR</div>
+                    <div style="font-size: 1.1rem; font-weight: 900; color: var(--text-brown); margin-top: 5px;">${rateToPkr.toFixed(2)}</div>
                 </div>
             `;
         }).join('');
