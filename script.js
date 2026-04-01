@@ -898,7 +898,7 @@ function renderJournal() {
     journalLines.forEach((line, idx) => {
         list.innerHTML += `
             <div class="journal-item">
-                <span style="flex: 1; word-wrap: break-word; margin-right: 15px; font-family: 'Poppins', sans-serif;">${line}</span>
+                <span class="urdu-text" style="flex: 1; word-wrap: break-word; margin-right: 15px; font-size: 1.1rem; line-height: 1.8;">${line}</span>
                 <div style="display: flex; gap: 5px; align-items: center;">
                     <button class="journal-copy-btn" onclick="copyJournal(${idx}, this)">Copy</button>
                     <button class="exp-del-btn" onclick="deleteJournalLine(${idx})" title="Delete">×</button>
